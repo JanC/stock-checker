@@ -15,12 +15,19 @@ const config = require('../config.json');
   }
 
   const browser = await puppeteer.launch(launchOptions);
-  const page = await browser.newPage();
   try {
+    var sitePromises = []
     for (let index = 0; index < sites.length; index += 1) {
+      const page = await browser.newPage();
       // making it wait for each loop on purpose to let previous chrome tab finish
-      await checkSite(sites[index], page);
+      const pagePromise = checkSite(sites[index], page)
+      pagePromise.then( () => {
+        page.close()
+      });
+      sitePromises.push(pagePromise);
     }
+
+    await Promise.all(sitePromises)
   } finally {
     // close the browser
     await browser.close();
