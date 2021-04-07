@@ -12,7 +12,7 @@ const isMatch = (actual, expected) => {
 
 const checkSite = async (site, page) => {
   const { url, xPath, expected, wait = 1, description, clickXPaths = [] } = site;
-  console.debug("Checking site " + description);
+  console.log('[%s] Starting', description);
 
   await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36');
   await page.goto(url);
@@ -22,7 +22,7 @@ const checkSite = async (site, page) => {
     for (const xpath of clickXPaths) {
       const [button] = await page.$x(xpath);
       if (typeof button !== 'undefined') {
-        console.debug("Clicking on " + xpath);
+        console.log('[%s] Clicking in %s', description, xpath);
         await button.click();
         await sleep(wait);
       }
@@ -32,7 +32,7 @@ const checkSite = async (site, page) => {
     const text = await page.evaluate((el) => el.textContent, elHandle[0]);
     const value = String(text).replace(/^\s+|\s+$/g, "");
     const match = isMatch(value, expected);
-    console.debug("Out of stock element present " + match);
+    console.log('[%s] Out of stock element present %s', description, match);
 
     if (!match) {
       await notify({
@@ -41,10 +41,13 @@ const checkSite = async (site, page) => {
       });
     }
   } catch (e) {
-    console.error("Exception:", e);
+    console.error('[%s] Exception %s', description, e);
+
     if (config && config.notifyOnNodeNotFound) {
       await notify({ site, message: `${description} could not reach the node specified` });
     }
+  } finally {
+    console.log('[%s] Done', description);
   }
 };
 
