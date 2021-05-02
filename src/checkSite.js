@@ -69,11 +69,7 @@ const checkSite = async (site, page) => {
 
     console.log("[%s] Out of stock %s", description, anyMatch);
     if (!anyMatch) {
-      console.log("[%s] Checking xpath %s", description, xPath);
-      await notify({
-        site,
-        message: `${description} did not find any of the matching values"`,
-      });
+      await notify({site, message: `${description} did not find any of the matching values"`, });
     }
 
     
