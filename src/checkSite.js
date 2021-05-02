@@ -27,7 +27,7 @@ const checkXPath = async (page, xPath, expected, wait, description) => {
     const text = await page.evaluate((el) => el.textContent, elHandle[0]);
     const value = String(text).replace(/^\s+|\s+$/g, "");
     const match = isMatch(value, expected);
-    console.log("[%s] Out of stock %s", description, match);
+    // console.log("[%s] Out of stock %s", description, match);
     return match
   } catch (e) {
     console.error("[%s] Exception %s", description, e);
@@ -53,7 +53,7 @@ const checkPage = async (page, site) => {
   for (const { xPath, expected } of checks) {
     console.log("[%s] Checking xpath %s", description, xPath);
     const match = await checkXPath(page, xPath, expected, wait, description)
-    anyMatch = match & anyMatch
+    anyMatch = match | anyMatch
     if (match) { break; }
   }
   return anyMatch
@@ -67,7 +67,9 @@ const checkSite = async (site, page) => {
     await waitForClicks(page, clickXPaths)
     const anyMatch = await checkPage(page, site)
 
+    console.log("[%s] Out of stock %s", description, anyMatch);
     if (!anyMatch) {
+      console.log("[%s] Checking xpath %s", description, xPath);
       await notify({
         site,
         message: `${description} did not find any of the matching values"`,
